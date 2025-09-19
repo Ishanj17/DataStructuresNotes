@@ -1,0 +1,3 @@
+Another text file for testing.
+This one has different content.
+But same file extension.

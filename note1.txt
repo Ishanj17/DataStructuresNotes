@@ -1,0 +1,3 @@
+This is a text file with some notes.
+It contains multiple lines of text.
+Perfect for testing file organization.
