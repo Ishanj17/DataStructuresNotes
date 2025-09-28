@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+// Check if all apps can be distributed to k teams with capacity 'cap'
+bool canDistribute(const vector<int>& apps, int k, int cap) {
+    int i = 0, j = apps.size() - 1;
+    int teams = 0;
+
+    while (i <= j) {
+        if (i == j) { // only one app left
+            teams++;
+            break;
+        }
+        if (apps[i] + apps[j] <= cap) {
+            // Pair smallest + largest
+            i++;
+            j--;
+        } else {
+            // Largest alone
+            j--;
+        }
+        teams++;
+    }
+
+    return teams <= k; // feasible if teams used <= k
+}
+
+int determineMinStorage(vector<int>& appMemory, int k) {
+    sort(appMemory.begin(), appMemory.end()); // ascending order
+
+    int low = *max_element(appMemory.begin(), appMemory.end());
+    int high = accumulate(appMemory.begin(), appMemory.end(), 0);
+    int ans = high;
+
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (canDistribute(appMemory, k, mid)) {
+            ans = mid;       // feasible, try smaller
+            high = mid - 1;
+        } else {
+            low = mid + 1;   // not feasible, need larger
+        }
+    }
+
+    return ans;
+}
+
+int main() {
+    vector<int> apps = {10, 7, 6, 12, 1};
+    int k = 5;
+
+    cout << determineMinStorage(apps, k) << endl; // Output: 12
+    return 0;
+}
