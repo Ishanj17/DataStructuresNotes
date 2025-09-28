@@ -1,46 +1,41 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<int> getMinRemovals(vector<int> cart_items, int budget) {
+vector<int> getMinRemovals(vector<int>& cart_items, int budget) {
     int n = cart_items.size();
     vector<int> result(n, 0);
+    int freq[101] = {0}; // item prices 1..100
     long long sum = 0;
-
-    // Max-heap to keep track of previous items (0..i-1)
-    priority_queue<int> pq;
 
     for (int i = 0; i < n; i++) {
         sum += cart_items[i];
         int removals = 0;
 
-        // Remove largest items from previous indices if sum > budget
-        priority_queue<int> temp = pq;
-        long long temp_sum = sum;
-        removals = 0;
+        int remaining = sum;
 
-        while (temp_sum > budget && !temp.empty()) {
-            int largest = temp.top();
-            temp.pop();
-            temp_sum -= largest;
-            removals++;
+        // Greedily remove largest previous items first
+        for (int price = 100; price >= 1 && remaining > budget; price--) {
+            if (freq[price] > 0) {
+                int count = freq[price];
+                // How many of this price to remove
+                int removeCount = min(count, (int)((remaining - budget + price - 1)/price));
+                remaining -= removeCount * price;
+                removals += removeCount;
+            }
         }
 
         result[i] = removals;
-
-        // Add current item to heap for future sub-carts
-        pq.push(cart_items[i]);
+        freq[cart_items[i]]++; // add current item to freq for future
     }
 
     return result;
 }
 
 int main() {
-    vector<int> cart_items = {2, 3, 7};
+    vector<int> cart_items = {2,3,7};
     int budget = 8;
-
     vector<int> ans = getMinRemovals(cart_items, budget);
     for (int x : ans) cout << x << " ";
     cout << endl; // Output: 0 0 2
-
     return 0;
 }
