@@ -1,52 +1,46 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// Check if all apps can be distributed to k teams with capacity 'cap'
-bool canDistribute(const vector<int>& apps, int k, long long cap) {
-    int i = 0, j = apps.size() - 1;
-    int teams = 0;
+vector<int> getMinRemovals(vector<int> cart_items, int budget) {
+    int n = cart_items.size();
+    vector<int> result(n, 0);
+    long long sum = 0;
 
-    while (i <= j) {
-        if (i == j) { // one app left
-            teams++;
-            break;
+    // Max-heap to keep track of previous items (0..i-1)
+    priority_queue<int> pq;
+
+    for (int i = 0; i < n; i++) {
+        sum += cart_items[i];
+        int removals = 0;
+
+        // Remove largest items from previous indices if sum > budget
+        priority_queue<int> temp = pq;
+        long long temp_sum = sum;
+        removals = 0;
+
+        while (temp_sum > budget && !temp.empty()) {
+            int largest = temp.top();
+            temp.pop();
+            temp_sum -= largest;
+            removals++;
         }
-        if ((long long)apps[i] + apps[j] <= cap) { // cast to long long
-            i++;
-            j--;
-        } else {
-            j--;
-        }
-        teams++;
+
+        result[i] = removals;
+
+        // Add current item to heap for future sub-carts
+        pq.push(cart_items[i]);
     }
 
-    return teams <= k;
-}
-
-int determineMinStorage(vector<int>& appMemory, int k) {
-    sort(appMemory.begin(), appMemory.end());
-
-    long long low = *max_element(appMemory.begin(), appMemory.end());
-    long long high = accumulate(appMemory.begin(), appMemory.end(), 0LL); // use 0LL
-    long long ans = high;
-
-    while (low <= high) {
-        long long mid = low + (high - low) / 2;
-        if (canDistribute(appMemory, k, mid)) {
-            ans = mid;
-            high = mid - 1;
-        } else {
-            low = mid + 1;
-        }
-    }
-
-    return (int)ans;
+    return result;
 }
 
 int main() {
-    vector<int> apps = {1000000000, 200000000, 300000000, 400000000, 500000000};
-    int k = 3;
+    vector<int> cart_items = {2, 3, 7};
+    int budget = 8;
 
-    cout << determineMinStorage(apps, k) << endl;
+    vector<int> ans = getMinRemovals(cart_items, budget);
+    for (int x : ans) cout << x << " ";
+    cout << endl; // Output: 0 0 2
+
     return 0;
 }
