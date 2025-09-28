@@ -2,53 +2,51 @@
 using namespace std;
 
 // Check if all apps can be distributed to k teams with capacity 'cap'
-bool canDistribute(const vector<int>& apps, int k, int cap) {
+bool canDistribute(const vector<int>& apps, int k, long long cap) {
     int i = 0, j = apps.size() - 1;
     int teams = 0;
 
     while (i <= j) {
-        if (i == j) { // only one app left
+        if (i == j) { // one app left
             teams++;
             break;
         }
-        if (apps[i] + apps[j] <= cap) {
-            // Pair smallest + largest
+        if ((long long)apps[i] + apps[j] <= cap) { // cast to long long
             i++;
             j--;
         } else {
-            // Largest alone
             j--;
         }
         teams++;
     }
 
-    return teams <= k; // feasible if teams used <= k
+    return teams <= k;
 }
 
 int determineMinStorage(vector<int>& appMemory, int k) {
-    sort(appMemory.begin(), appMemory.end()); // ascending order
+    sort(appMemory.begin(), appMemory.end());
 
-    int low = *max_element(appMemory.begin(), appMemory.end());
-    int high = accumulate(appMemory.begin(), appMemory.end(), 0);
-    int ans = high;
+    long long low = *max_element(appMemory.begin(), appMemory.end());
+    long long high = accumulate(appMemory.begin(), appMemory.end(), 0LL); // use 0LL
+    long long ans = high;
 
     while (low <= high) {
-        int mid = low + (high - low) / 2;
+        long long mid = low + (high - low) / 2;
         if (canDistribute(appMemory, k, mid)) {
-            ans = mid;       // feasible, try smaller
+            ans = mid;
             high = mid - 1;
         } else {
-            low = mid + 1;   // not feasible, need larger
+            low = mid + 1;
         }
     }
 
-    return ans;
+    return (int)ans;
 }
 
 int main() {
-    vector<int> apps = {10, 7, 6, 12, 1};
-    int k = 5;
+    vector<int> apps = {1000000000, 200000000, 300000000, 400000000, 500000000};
+    int k = 3;
 
-    cout << determineMinStorage(apps, k) << endl; // Output: 12
+    cout << determineMinStorage(apps, k) << endl;
     return 0;
 }
